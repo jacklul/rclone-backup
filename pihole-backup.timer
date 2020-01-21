@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily backup of Pi-hole's configuration and lists
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target

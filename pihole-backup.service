@@ -1,0 +1,8 @@
+[Unit]
+Description=Backup Pi-hole configuration and lists
+After=network-online.target multi-user.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/pihole-backup

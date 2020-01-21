@@ -1,0 +1,40 @@
+﻿# List of files to backup
+# Pi-hole Configuration
+/etc/pihole/setupVars.conf
+/etc/pihole/pihole-FTL.conf
+/etc/dnsmasq.d/*.conf
+/etc/lighttpd/lighttpd.conf
+/etc/cron.d/pihole
+/etc/systemd/system/pihole-FTL.service
+/etc/systemd/system/pihole-FTL.service.d/override.conf
+
+# Pi-hole v4.3.2 lists
+/etc/pihole/adlists.list*
+/etc/pihole/whitelist.txt*
+/etc/pihole/blacklist.txt*
+/etc/pihole/regex.list*
+/etc/pihole/auditlog.list
+
+# Pi-hole v5.0.0 lists
+#/etc/pihole/gravity.db but with purged 'gravity' table to minimize file size
+/etc/pihole/gravity.min.db
+
+# Resolvers configuration
+# Unbound
+/etc/unbound/unbound.conf.d/*.conf
+/etc/systemd/system/unbound.service
+/etc/systemd/system/unbound.service.d/override.conf
+
+# DNSCrypt
+/etc/dnscrypt-proxy/dnscrypt-proxy.toml
+/etc/systemd/system/dnscrypt-proxy.service
+/etc/systemd/system/dnscrypt-proxy.service.d/override.conf
+
+# Cloudflared
+/etc/cloudflared/config.yaml
+/etc/default/cloudflared
+/etc/systemd/system/cloudflared.service
+/etc/systemd/system/cloudflared.service.d/override.conf
+
+# User entries should go below this line
+/etc/pihole-backup/include.list
