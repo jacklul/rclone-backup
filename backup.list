@@ -2,6 +2,9 @@
 # Pi-hole Configuration
 /etc/pihole/setupVars.conf
 /etc/pihole/pihole-FTL.conf
+/etc/pihole/local.list
+/etc/pihole/custom.list
+/etc/pihole/logrotate
 /etc/dnsmasq.d/*.conf
 /etc/lighttpd/lighttpd.conf
 /etc/cron.d/pihole
