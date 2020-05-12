@@ -7,47 +7,48 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
 	exit
 fi
 
-LOCKFILE=/tmp/$(basename $0).lock
+LOCKFILE=/var/lock/$(basename $0)
 CONFIG_DIR=/etc/pihole-backup
 CONFIG_FILE=${CONFIG_DIR}/pihole-backup.conf
-RCLONE_CONFIG=${CONFIG_DIR}/rclone.conf
-INCLUDE_LIST=${CONFIG_DIR}/backup.list
+RCLONE_CONFIG_FILE=${CONFIG_DIR}/rclone.conf
+BACKUP_LIST_FILE=${CONFIG_DIR}/backup.list
 PIHOLE_CONFIG_DIR=/etc/pihole
-GRAVITY_FILE=${PIHOLE_CONFIG_DIR}/gravity.db
-GRAVITY_MIN_FILE=${PIHOLE_CONFIG_DIR}/gravity.min.db
+GRAVITYDB_FILE=${PIHOLE_CONFIG_DIR}/gravity.db
+GRAVITYDB_MIN_FILE=${PIHOLE_CONFIG_DIR}/gravity.min.db
 
 if [ -f "${CONFIG_FILE}" ]; then
 	. ${CONFIG_FILE}
 fi
 
-if [ ! -f "$LOCKFILE" ]; then
-	touch $LOCKFILE
-else
-	echo "Already running. (LOCKFILE: ${LOCKFILE})"
-	exit 6
+command -v rclone >/dev/null 2>&1 || { echo "Please install Rclone!"; exit 1; }
+
+PID=$(cat ${LOCKFILE} 2> /dev/null || echo '')
+if [ -e ${LOCKFILE} ] && [ ! -z "$PID" ] && kill -0 $PID; then
+    echo "Script is already running!"
+    exit 6
 fi
+
+echo $$ > ${LOCKFILE}
 
 function onInterruptOrExit() {
 	rm "$LOCKFILE" >/dev/null 2>&1
 }
 trap onInterruptOrExit EXIT
 
-command -v rclone >/dev/null 2>&1 || { echo "Please install Rclone!"; exit 1; }
+[ -f "$RCLONE_CONFIG_FILE" ] || { echo "Missing Rclone configuration: $RCLONE_CONFIG_FILE"; exit 1; }
+[ -f "$BACKUP_LIST_FILE" ] || { echo "Missing backup list file: $BACKUP_LIST_FILE"; exit 1; }
 
-[ -f "$RCLONE_CONFIG" ] || { echo "Rclone configuration missing!"; exit 1; }
-[ ! -f "$INCLUDE_LIST" ] && touch $INCLUDE_LIST_USER
-
-if [ -f "${GRAVITY_FILE}" ]; then
-	echo "Minimizing gravity.db into gravity.min.db..."
-	cp -f ${GRAVITY_FILE} ${GRAVITY_MIN_FILE}
-	sqlite3 ${GRAVITY_MIN_FILE} "DELETE FROM gravity; VACUUM;"
+if [ -f "${GRAVITYDB_FILE}" ]; then
+	echo "Minimizing gravity.db..."
+	cp -f ${GRAVITYDB_FILE} ${GRAVITYDB_MIN_FILE}
+	sqlite3 ${GRAVITYDB_MIN_FILE} "DELETE FROM gravity; VACUUM;"
 fi
 
 echo "Backing up now..."
 
 renice -n -20 $$ > /dev/null
 rclone sync --verbose --copy-links \
-	--config "$RCLONE_CONFIG" \
-	--include-from="$INCLUDE_LIST" \
+	--config "$RCLONE_CONFIG_FILE" \
+	--include-from="$BACKUP_LIST_FILE" \
 	/ remote: \
 	&& echo "Finished successfully"
