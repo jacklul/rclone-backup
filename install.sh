@@ -8,6 +8,7 @@ fi
 [ -d "/etc/pihole" ] && [ -d "/opt/pihole" ] || { echo "Pi-hole doesn't seem to be installed"; exit 1; }
 command -v rclone >/dev/null 2>&1 || { echo "This script requires Rclone to run, install it with 'wget -O - https://rclone.org/install.sh | sudo bash'."; }
 command -v sqlite3 >/dev/null 2>&1 || { echo "This script requires sqlite3 to run, install it with 'sudo apt install sqlite3'."; exit 1; }
+command -v md5sum >/dev/null 2>&1 || { echo "This script requires md5sum to run, install it with 'sudo apt install md5sum'."; exit 1; }
 
 SPATH=$(dirname $0)
 REMOTE_URL=https://raw.githubusercontent.com/jacklul/pihole-backup/master
