@@ -5,6 +5,7 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
 	exit
 fi
 
+set -e
 [ -d "/etc/pihole" ] && [ -d "/opt/pihole" ] || { echo "Pi-hole doesn't seem to be installed"; exit 1; }
 command -v rclone >/dev/null 2>&1 || { echo "This script requires Rclone to run, install it with 'wget -O - https://rclone.org/install.sh | sudo bash'."; }
 command -v sqlite3 >/dev/null 2>&1 || { echo "This script requires sqlite3 to run, install it with 'sudo apt install sqlite3'."; exit 1; }
