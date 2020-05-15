@@ -32,7 +32,7 @@ fi
 echo $$ > ${LOCKFILE}
 
 function onInterruptOrExit() {
-	rm "$LOCKFILE" >/dev/null 2>&1
+	rm -f "$LOCKFILE" >/dev/null 2>&1
 }
 trap onInterruptOrExit EXIT
 
@@ -41,19 +41,57 @@ trap onInterruptOrExit EXIT
 
 if [ -f "${GRAVITYDB_FILE}" ]; then
 	PREVIOUS_CHECKSUM=
-	if [ -f "${GRAVITYDB_MIN_FILE}.cache" ]; then
-		PREVIOUS_CHECKSUM=`cat "${GRAVITYDB_MIN_FILE}.cache"`
+	if [ -f "${GRAVITYDB_FILE}.md5" ]; then
+		PREVIOUS_CHECKSUM=`cat "${GRAVITYDB_FILE}.md5"`
 	fi
 
 	CURRENT_CHECKSUM=`md5sum ${GRAVITYDB_FILE} | awk '{ print $1 }'`
 
-	if [ "${CURRENT_CHECKSUM}" != "${PREVIOUS_CHECKSUM}" ]; then
-		echo "Minimizing gravity database file size..."
+	if [ "${CURRENT_CHECKSUM}" != "${PREVIOUS_CHECKSUM}" ] || [ ! -f "${GRAVITYDB_MIN_FILE}" ]; then
+		echo "Reducing gravity database file size..."
 		
-		cp -f ${GRAVITYDB_FILE} ${GRAVITYDB_MIN_FILE}
-		sqlite3 ${GRAVITYDB_MIN_FILE} "DELETE FROM gravity; VACUUM;"
+		# Create new empty database
+		rm -f ${GRAVITYDB_MIN_FILE}
+		sqlite3 ${GRAVITYDB_MIN_FILE} "VACUUM;"
 		
-		echo ${CURRENT_CHECKSUM} > "${GRAVITYDB_MIN_FILE}.cache"
+		# Copy schema
+		sqlite3 ${GRAVITYDB_FILE} ".schema" | sed "/sqlite_sequence/d" | sqlite3 ${GRAVITYDB_MIN_FILE}
+		
+		if [ $? -eq 0 ]; then
+			# Copy data from specific tables
+			{
+			sqlite3 ${GRAVITYDB_FILE} <<EOT
+.mode insert info
+SELECT * FROM 'info';
+.mode insert 'group'
+SELECT * FROM 'group';
+.mode insert 'client'
+SELECT * FROM 'client';
+.mode insert 'client_by_group'
+SELECT * FROM 'client_by_group' WHERE 'client_by_group'.'group_id' > 0;
+.mode insert 'adlist'
+SELECT * FROM 'adlist';
+.mode insert 'adlist_by_group'
+SELECT * FROM 'adlist_by_group' WHERE 'adlist_by_group'.'group_id' > 0;
+.mode insert 'domainlist'
+SELECT * FROM 'domainlist';
+.mode insert 'domainlist_by_group'
+SELECT * FROM 'domainlist_by_group' WHERE 'domainlist_by_group'.'group_id' > 0;
+.mode insert 'domain_audit'
+SELECT * FROM 'domain_audit';
+EOT
+			} | sqlite3 ${GRAVITYDB_MIN_FILE}
+			
+			if [ ! $? -eq 0 ]; then
+				echo "Failed to copy database data!"
+				exit 1
+			fi
+		else
+			echo "Failed to copy database schema!"
+			exit 1
+		fi
+
+		echo ${CURRENT_CHECKSUM} > "${GRAVITYDB_FILE}.md5"
 	fi
 fi
 
