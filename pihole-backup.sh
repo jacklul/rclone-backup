@@ -20,8 +20,9 @@ if [ -f "${CONFIG_FILE}" ]; then
 	. ${CONFIG_FILE}
 fi
 
-command -v rclone >/dev/null 2>&1 || { echo "Please install Rclone!"; exit 1; }
-command -v md5sum >/dev/null 2>&1 || { echo "Please install md5sum!"; exit 1; }
+command -v rclone >/dev/null 2>&1 || { echo "Please install Rclone - https://rclone.org!"; exit 1; }
+command -v sqlite3 >/dev/null 2>&1 || { echo "Please install 'sqlite3' package!"; exit 1; }
+command -v md5sum >/dev/null 2>&1 || { echo "Please install 'md5sum' package!"; exit 1; }
 
 PID=$(cat ${LOCKFILE} 2> /dev/null || echo '')
 if [ -e ${LOCKFILE} ] && [ ! -z "$PID" ] && kill -0 $PID; then
