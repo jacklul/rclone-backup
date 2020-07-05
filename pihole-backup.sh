@@ -98,7 +98,6 @@ fi
 
 echo "Backing up now..."
 
-renice -n -20 $$ > /dev/null
 rclone sync --verbose --copy-links \
 	--config "$RCLONE_CONFIG_FILE" \
 	--include-from="$BACKUP_LIST_FILE" \
