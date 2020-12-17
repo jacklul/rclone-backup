@@ -40,4 +40,4 @@
 /etc/systemd/system/cloudflared.service.d/override.conf
 
 # User entries should go below this line
-/etc/pihole-backup/include.list
+/etc/pihole-backup/backup.list
