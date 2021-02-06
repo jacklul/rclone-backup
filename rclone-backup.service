@@ -1,8 +1,8 @@
 [Unit]
-Description=Backup Pi-hole configuration and lists
+Description=Create backup using rclone utility
 After=network-online.target multi-user.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/sbin/pihole-backup
+ExecStart=/usr/local/sbin/rclone-backup
