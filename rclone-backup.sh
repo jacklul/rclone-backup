@@ -9,6 +9,7 @@ CONFIG_FILE=${CONFIG_DIR}/rclone-backup.conf
 RCLONE_CONFIG_FILE=${CONFIG_DIR}/rclone.conf
 FILTER_LIST_FILE=${CONFIG_DIR}/backup.list
 EXECUTE_SCRIPT=${CONFIG_DIR}/script.sh
+EXTRA_PARAMETERS=
 LOCKFILE=/var/lock/$(basename $0)
 
 if [ -f "${CONFIG_FILE}" ]; then
@@ -43,4 +44,5 @@ rclone sync --verbose --copy-links \
 	--filter-from="$FILTER_LIST_FILE" \
 	/ remote: \
 	$@ \
+	$EXTRA_PARAMETERS \
 	&& echo "Finished successfully"
