@@ -1,5 +1,5 @@
 [Unit]
-Description=Create backup using rclone utility
+Description=Create backup using rclone-backup
 After=network-online.target multi-user.target
 Wants=network-online.target
 
