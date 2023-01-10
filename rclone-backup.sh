@@ -40,8 +40,7 @@ fi
 
 echo "Backing up now..."
 
-rclone sync --verbose --copy-links \
-	--config "$RCLONE_CONFIG_FILE" \
+rclone sync --config "$RCLONE_CONFIG_FILE" \
 	--filter-from="$FILTER_LIST_FILE" \
 	/ $REMOTE_NAME \
 	$@ \
