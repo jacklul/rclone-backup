@@ -9,8 +9,8 @@ CONFIG_FILE=${CONFIG_DIR}/rclone-backup.conf
 RCLONE_CONFIG_FILE=${CONFIG_DIR}/rclone.conf
 FILTER_LIST_FILE=${CONFIG_DIR}/backup.list
 EXECUTE_SCRIPT=${CONFIG_DIR}/script.sh
-REMOTE_NAME=remote:
-EXTRA_PARAMETERS=
+REMOTE=remote:
+PARAMETERS=
 LOCKFILE=/var/lock/$(basename $0)
 
 if [ -f "${CONFIG_FILE}" ]; then
@@ -42,7 +42,7 @@ echo "Backing up now..."
 
 rclone sync --config "$RCLONE_CONFIG_FILE" \
 	--filter-from="$FILTER_LIST_FILE" \
-	/ $REMOTE_NAME \
+	/ $REMOTE \
+	$PARAMETERS \
 	$@ \
-	$EXTRA_PARAMETERS \
 	&& echo "Finished successfully"
