@@ -1,0 +1,56 @@
+##################
+# Global exclude #
+##################
+
+- **/*.log
+- **/*log*.txt
+- **/*.log.*
+- **/*.tmp
+- **/*.temp
+- **/*.cache
+- **/*.part
+- **/*.rbf
+- **/*.chk
+- **/*.dov
+- **/*.dmp
+- **/*.dump
+- **/*.mdmp
+- **/*.crash
+- **/*.pma
+- **/lock
+
+################
+# Users folder #
+################
+
+# Exclude Public and Default user directories
+- /Users/Public/
+- /Users/Default/
+
+# Users exclude
+- /Users/*/Downloads/
++ /Users/*/NTUSER.DAT
+- /Users/*/NTUSER.DAT*
+
+# AppData filter
+- /Users/**/AppData/*/Temp/
+- /Users/**/AppData/**/Cache/
+- /Users/**/AppData/**/Code Cache/
+- /Users/**/AppData/**/GPUCache/
+- /Users/**/AppData/**/Service Worker/CacheStorage/
+- /Users/**/AppData/**/Crashpad/
+- /Users/**/AppData/**/crashes/
+- /Users/**/AppData/**/crashreport/
+- /Users/**/AppData/**/crashdumps/
+- /Users/**/AppData/**/logs/
+- /Users/**/AppData/**/webcache*/
+- /Users/**/AppData/**/*cache/
+- /Users/**/AppData/**/CrashpadMetrics*
+
+# Add everything else
++ /Users/*/**
+
+###########################################
+# Exclude everything else - DO NOT REMOVE #
+###########################################
+- **

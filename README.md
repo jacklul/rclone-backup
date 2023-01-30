@@ -17,3 +17,7 @@ Filtering rules are in `/etc/rclone-backup/backup.list` - see [here](https://rcl
 If there is something you need to do before every backup you can create `/etc/rclone-backup/script.sh` script, it will be executed each time the task starts.
 
 Any arguments passed to `rclone-backup` are passed to `rclone` command line or you can use `EXTRA_PARAMETERS` config variable!
+
+### Install for Windows
+
+See [here](/windows).
