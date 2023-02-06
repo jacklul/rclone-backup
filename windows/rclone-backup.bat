@@ -304,7 +304,7 @@ if %TEST_MODE% equ true (
 
 :syncwait
 if "%ARG%"=="sync-wait" (
-	choice /C YN /M "Beging synchronization "
+	choice /C YN /M "Begin synchronization "
 	if errorlevel 2 goto syncwait_exit
 	if errorlevel 1 goto syncwait_continue
 
@@ -320,14 +320,27 @@ where shadowrun >nul 2>&1
 if %ERRORLEVEL% NEQ 0 set USE_VSS=false
 ver > nul
 
+:sync_start
+
 if %USE_VSS% equ true (
 	shadowrun -env -mount -drive=%VSS_DRIVE% -exec=%RCLONE_BIN% %LOCAL_DRIVE%: -- --config="%RCLONE_CONFIG%" --filter-from="%FILTER_RULES%" sync %VSS_DRIVE%:%LOCAL_PATH% %REMOTE_PATH% %ARGUMENTS_ACTUAL%
 ) else (
 	rclone --config="%RCLONE_CONFIG%" --filter-from="%FILTER_RULES%" sync %LOCAL_DRIVE%:%LOCAL_PATH% %REMOTE_PATH% %ARGUMENTS_ACTUAL%
 )
 
+set RESULT=%ERRORLEVEL%
+
+if not "%RESULT%"=="0" (
+	choice /C YN /M "Backup operation failed, restart synchronization "
+	
+	if errorlevel 2 goto after
+	if errorlevel 1 goto sync_start
+)
+
+:after
+
 if "%ARG%"=="sync" (
-	exit /B %ERRORLEVEL%
+	exit /B %RESULT%
 )
 
 echo.
@@ -335,7 +348,7 @@ echo.
 
 :syncwait_eof
 if "%ARG%"=="sync-wait" (
-	exit /B %ERRORLEVEL%
+	exit /B %RESULT%
 )
 
 set ARG=
