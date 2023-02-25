@@ -38,6 +38,10 @@ if [ "$EXECUTE_SCRIPT" != "" ] && [ -f "$EXECUTE_SCRIPT" ]; then
 	bash "$EXECUTE_SCRIPT"
 fi
 
+if [ ! -z "$LAUNCHED_BY_SYSTEMD" ]; then
+	PARAMETERS=$(echo "$PARAMETERS " | sed 's/--progress //g' | sed -r 's/--stats [a-zA-Z0-9]+ //g')
+fi
+
 echo "Backing up now..."
 
 rclone sync --config "$RCLONE_CONFIG_FILE" \
