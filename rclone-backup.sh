@@ -14,11 +14,12 @@ PARAMETERS=
 LOCKFILE=/var/lock/$(basename $0)
 
 if [ -f "${CONFIG_FILE}" ]; then
-	. ${CONFIG_FILE}
+	#shellcheck disable=SC1090
+	. "${CONFIG_FILE}"
 fi
 
 LOCKPID=$(cat "$LOCKFILE"} 2> /dev/null || echo '')
-if [ -e "$LOCKFILE" ] && [ ! -z "$LOCKPID" ] && kill -0 $LOCKPID > /dev/null 2>&1; then
+if [ -e "$LOCKFILE" ] && [ ! -z "$LOCKPID" ] && kill -0 "$LOCKPID" > /dev/null 2>&1; then
     echo "Script is already running!"
     exit 6
 fi
@@ -44,9 +45,10 @@ fi
 
 echo "Backing up now..."
 
+#shellcheck disable=SC2086,SC2068
 rclone sync --config "$RCLONE_CONFIG_FILE" \
 	--filter-from="$FILTER_LIST_FILE" \
-	/ $REMOTE \
+	/ "$REMOTE" \
 	$PARAMETERS \
 	$@ \
 	&& echo "Finished successfully"

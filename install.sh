@@ -5,20 +5,20 @@
 set -e
 command -v rclone >/dev/null 2>&1 || { echo "This script requires Rclone to run, install it with 'wget -O - https://rclone.org/install.sh | sudo bash'."; }
 
-SPATH=$(dirname $0)
+SPATH=$(dirname "$0")
 REMOTE_URL=https://raw.githubusercontent.com/jacklul/rclone-backup/master
 
 if [ -f "$SPATH/rclone-backup.sh" ] && [ -f "$SPATH/backup.list" ] && [ -f "$SPATH/rclone-backup.service" ] && [ -f "$SPATH/rclone-backup.timer" ]; then
-	cp -v $SPATH/rclone-backup.sh /usr/local/sbin/rclone-backup && chmod +x /usr/local/sbin/rclone-backup
+	cp -v "$SPATH/rclone-backup.sh" /usr/local/sbin/rclone-backup && chmod +x /usr/local/sbin/rclone-backup
 	
 	mkdir -vp /etc/rclone-backup
 	
 	if [ ! -f "/etc/rclone-backup/backup.list" ]; then
-		cp -v $SPATH/backup.list /etc/rclone-backup/backup.list
+		cp -v "$SPATH/backup.list" /etc/rclone-backup/backup.list
 	fi
 	
-	cp -v $SPATH/rclone-backup.service /etc/systemd/system && chmod 644 /etc/systemd/system/rclone-backup.service
-	cp -v $SPATH/rclone-backup.timer /etc/systemd/system && chmod 644 /etc/systemd/system/rclone-backup.timer
+	cp -v "$SPATH/rclone-backup.service" /etc/systemd/system && chmod 644 /etc/systemd/system/rclone-backup.service
+	cp -v "$SPATH/rclone-backup.timer" /etc/systemd/system && chmod 644 /etc/systemd/system/rclone-backup.timer
 elif [ "$REMOTE_URL" != "" ]; then
 	wget -nv -O /usr/local/sbin/rclone-backup "$REMOTE_URL/rclone-backup.sh" && chmod +x /usr/local/sbin/rclone-backup
 	
