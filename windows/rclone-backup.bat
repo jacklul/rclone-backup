@@ -63,6 +63,7 @@ set ARGUMENTS_WEBDAV=--vfs-cache-mode off --no-modtime --crypt-show-mapping --re
 set PORT_FTP=2150
 set PORT_WEBDAV=8050
 set TEST_LOG=%TEMP%\rclone.log
+set TEST_CONFIG=%TEMP%\rclone-test.conf
 
 :: For WebDav RW: --cache-dir="%TEMP%\rclone-vfs-cache" --vfs-cache-mode writes
 
@@ -130,12 +131,12 @@ if '%errorlevel%' NEQ '0' (
 
 :: Overwrite config with test mode variables
 if %TEST_MODE% equ true (
-	if not exist "%TEMP%\rclone-test.conf" (
-		echo [memory]> "%TEMP%\rclone-test.conf"
-		echo type = memory>> "%TEMP%\rclone-test.conf"
+	if not exist "%TEST_CONFIG%" (
+		echo [memory]> "%TEST_CONFIG%"
+		echo type = memory>> "%TEST_CONFIG%"
 	)
 
-	set RCLONE_CONFIG=%TEMP%\rclone-test.conf
+	set RCLONE_CONFIG=%TEST_CONFIG%
 	set REMOTE_PATH=memory:
 	set DRY_RUN=true
 	set USE_VSS=false
