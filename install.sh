@@ -6,34 +6,49 @@ set -e
 command -v rclone >/dev/null 2>&1 || { echo "This script requires Rclone to run, install it with 'wget -O - https://rclone.org/install.sh | sudo bash'."; }
 
 SPATH=$(dirname "$0")
-REMOTE_URL=https://raw.githubusercontent.com/jacklul/rclone-backup/master
+REQUIRED_FILES=( rclone-backup.sh rclone-backup.service rclone-backup.timer rclone-backup.conf backup.list )
+DOWNLOAD_PATH=rclone-backup
+DOWNLOAD_URL=https://raw.githubusercontent.com/jacklul/rclone-backup/master
 
-if [ -f "$SPATH/rclone-backup.sh" ] && [ -f "$SPATH/backup.list" ] && [ -f "$SPATH/rclone-backup.service" ] && [ -f "$SPATH/rclone-backup.timer" ]; then
-	cp -v "$SPATH/rclone-backup.sh" /usr/local/sbin/rclone-backup && chmod +x /usr/local/sbin/rclone-backup
-	
-	mkdir -vp /etc/rclone-backup
-	
-	if [ ! -f "/etc/rclone-backup/backup.list" ]; then
-		cp -v "$SPATH/backup.list" /etc/rclone-backup/backup.list
+set -e
+
+MISSING_FILES=0
+for FILE in "${REQUIRED_FILES[@]}"; do
+	if [ ! -f "$SPATH/$FILE" ]; then
+		MISSING_FILES=$((MISSING_FILES+1))
 	fi
-	
-	cp -v "$SPATH/rclone-backup.service" /etc/systemd/system && chmod 644 /etc/systemd/system/rclone-backup.service
-	cp -v "$SPATH/rclone-backup.timer" /etc/systemd/system && chmod 644 /etc/systemd/system/rclone-backup.timer
-elif [ "$REMOTE_URL" != "" ]; then
-	wget -nv -O /usr/local/sbin/rclone-backup "$REMOTE_URL/rclone-backup.sh" && chmod +x /usr/local/sbin/rclone-backup
-	
-	mkdir -vp /etc/rclone-backup
-	
-	if [ ! -f "/etc/rclone-backup/backup.list" ]; then
-		wget -nv -O /etc/rclone-backup/backup.list "$REMOTE_URL/backup.list"
+done
+
+if [ "$MISSING_FILES" -gt 0 ]; then
+	if [ "$MISSING_FILES" != "${#MISSING_FILES[@]}" ]; then
+		mkdir -v "$SPATH/$DOWNLOAD_PATH"
+		SPATH="$SPATH/$DOWNLOAD_PATH"
 	fi
-	
-	wget -nv -O /etc/systemd/system/rclone-backup.service "$REMOTE_URL/rclone-backup.service" && chmod 644 /etc/systemd/system/rclone-backup.service
-	wget -nv -O /etc/systemd/system/rclone-backup.timer "$REMOTE_URL/rclone-backup.timer" && chmod 644 /etc/systemd/system/rclone-backup.timer
-else
-	echo "Missing required files for installation!"
-	exit 1
+
+	for FILE in "${REQUIRED_FILES[@]}"; do
+		if [ ! -f "$SPATH/$FILE" ]; then
+			wget -nv -O "$SPATH/$FILE" "$DOWNLOAD_URL/$FILE"
+		fi
+	done
 fi
+
+for FILE in "${REQUIRED_FILES[@]}"; do
+	if [ ! -f "$SPATH/$FILE" ]; then
+		echo "Missing required file for installation: $FILE"
+		exit 1
+	fi
+done
+
+cp -v "$SPATH/rclone-backup.sh" /usr/local/sbin/rclone-backup && chmod +x /usr/local/sbin/rclone-backup
+
+mkdir -vp /etc/rclone-backup
+
+if [ ! -f "/etc/rclone-backup/backup.list" ]; then
+	cp -v "$SPATH/backup.list" /etc/rclone-backup/backup.list
+fi
+
+cp -v "$SPATH/rclone-backup.service" /etc/systemd/system && chmod 644 /etc/systemd/system/rclone-backup.service
+cp -v "$SPATH/rclone-backup.timer" /etc/systemd/system && chmod 644 /etc/systemd/system/rclone-backup.timer
 
 echo "Enabling and starting rclone-backup.timer..."
 systemctl enable rclone-backup.timer && systemctl start rclone-backup.timer
