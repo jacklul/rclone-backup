@@ -2,7 +2,7 @@
 
 Simple script that uses [Rclone](https://rclone.org) to backup your important files to cloud service.
 
-Extra: [Setup for Pi-hole](/Pi-hole.md)
+[See here](/Windows) for Windows variant.
 
 ### Install for Linux
 
@@ -18,6 +18,4 @@ If there is something you need to do before every backup you can create `/etc/rc
 
 Any arguments passed to `rclone-backup` are passed to `rclone` command line or you can use `PARAMETERS` variable in `/etc/rclone-backup/rclone-backup.conf`!
 
-### Install for Windows
-
-See [here](/windows).
+### [Setup for Pi-hole](/Pi-hole.md)

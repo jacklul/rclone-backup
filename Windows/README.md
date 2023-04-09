@@ -1,10 +1,10 @@
-# rclone-backup-windows
+# rclone-backup for Windows
 
 Basic script that uses **rclone** to backup important files to the cloud.
 
 ## Requirements
 
-- [rclone](https://rclone.org/)
+- [rclone](https://rclone.org/) available in `PATH`
 - [shadowrun](https://github.com/albertony/vss/tree/master/shadowrun) (to transfer locked files by using VSS)
 
 ## Usage
