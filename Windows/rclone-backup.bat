@@ -137,11 +137,10 @@ if "%PROCESSOR_ARCHITECTURE%" equ "amd64" (
 ) else (
 	>nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 )
-if '%errorlevel%' NEQ '0' (
-	set USE_VSS=false
+
+if '%ERRORLEVEL%' NEQ '0' (
 	set HAS_ADMIN=false
 ) else (
-	set USE_VSS=true
 	set HAS_ADMIN=true
 )
 
@@ -295,9 +294,24 @@ echo   ARGUMENTS=%ARGUMENTS%
 echo.
 exit /B
 
+:: Request admin permissions
+:get_admin
+echo Requesting admin privileges...
+set "params=%*"
+cd /d "%~dp0" && ( if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs" ) && fsutil dirty query %systemdrive% 1>nul 2>nul || (  echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c cd ""%~sdp0"" && %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs" && "%temp%\getadmin.vbs" && exit /B )
+exit /B
+
 :: Run the sync
 :sync
 cls
+
+if %USE_VSS% equ true (
+	if %HAS_ADMIN% equ false (
+		echo Admin privileges are required to use VSS!
+		goto get_admin
+	)
+)
+
 set ARGUMENTS_ACTUAL=%ARGUMENTS%
 
 if %SHOW_PROGRESS% equ true (
@@ -369,3 +383,4 @@ set ARG=
 goto menu
 
 :eof
+exit /B
