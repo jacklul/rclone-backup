@@ -9,9 +9,15 @@ set HAS_ADMIN=false
 :start
 title RCLONE BACKUP
 
-:: Check if rclone command is globally available
+:: Check if rclone command is available
 where rclone >nul 2>&1
-if %ERRORLEVEL% NEQ 0 echo rclone not found && echo %ERRORLEVEL% && exit /B %ERRORLEVEL%
+if %ERRORLEVEL% NEQ 0 (
+	echo Rclone not found - get it at https://rclone.org
+	@pause
+	goto eof
+)
+
+:: Set path to rclone binary for ShadowRun
 for /F "tokens=*" %%g in ('where rclone') do (set RCLONE_BIN=%%g)
 
 :: This is the default location for the config file
@@ -112,6 +118,16 @@ if not %TEST_MODE% equ true (
 		echo Missing filter file: %FILTER_RULES%
 		@pause
 		exit /B 2
+	)
+)
+
+:: Check if ShadowRun command is available
+where ShadowRun >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+	if %USE_VSS% equ true (
+		echo ShadowRun not found - get it at https://github.com/albertony/vss/tree/master/shadowrun
+		@pause
+		goto eof
 	)
 )
 
@@ -267,13 +283,13 @@ echo   FILTER_RULES=%FILTER_RULES%
 echo   REMOTE_PATH=%REMOTE_PATH%
 echo   LOCAL_DRIVE=%LOCAL_DRIVE%
 echo   LOCAL_PATH=%LOCAL_PATH%
-echo   SHOW_PROGRESS=%SHOW_PROGRESS%
-echo   DRY_RUN=%DRY_RUN%
 if %USE_VSS% equ true (
 	echo   USE_VSS=%USE_VSS% (VSS_DRIVE=%VSS_DRIVE%^)
 ) else (
-	echo   USE_VSS=%USE_VSS% (ADMIN=%HAS_ADMIN%^)
+	echo   USE_VSS=%USE_VSS%
 )
+echo   SHOW_PROGRESS=%SHOW_PROGRESS%
+echo   DRY_RUN=%DRY_RUN%
 echo   ARGUMENTS=%ARGUMENTS%
 
 echo.
@@ -317,14 +333,11 @@ if "%ARG%"=="sync-wait" (
 	echo.
 )
 
-where shadowrun >nul 2>&1
-if %ERRORLEVEL% NEQ 0 set USE_VSS=false
+:sync_start
 ver > nul
 
-:sync_start
-
 if %USE_VSS% equ true (
-	shadowrun -env -mount -drive=%VSS_DRIVE% -exec=%RCLONE_BIN% %LOCAL_DRIVE%: -- --config="%RCLONE_CONFIG%" --filter-from="%FILTER_RULES%" sync %VSS_DRIVE%:%LOCAL_PATH% %REMOTE_PATH% %ARGUMENTS_ACTUAL%
+	ShadowRun -env -mount -drive=%VSS_DRIVE% -exec=%RCLONE_BIN% %LOCAL_DRIVE%: -- --config="%RCLONE_CONFIG%" --filter-from="%FILTER_RULES%" sync %VSS_DRIVE%:%LOCAL_PATH% %REMOTE_PATH% %ARGUMENTS_ACTUAL%
 ) else (
 	rclone --config="%RCLONE_CONFIG%" --filter-from="%FILTER_RULES%" sync %LOCAL_DRIVE%:%LOCAL_PATH% %REMOTE_PATH% %ARGUMENTS_ACTUAL%
 )
