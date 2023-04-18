@@ -162,6 +162,7 @@ if %TEST_MODE% equ true (
 :: Quick argument shortcuts to script functions
 if "%ARG%"=="sync" goto sync
 if "%ARG%"=="sync-wait" goto sync
+if "%ARG%"=="sync-after-getadmin" goto sync
 if "%ARG%"=="gui" goto gui
 if "%ARG%"=="webdav" goto serve_webdav
 if "%ARG%"=="ftp" goto serve_webdav
@@ -297,7 +298,7 @@ exit /B
 :: Request admin permissions
 :get_admin
 echo Requesting admin privileges...
-set "params=%*"
+set "params=%* sync-after-getadmin"
 cd /d "%~dp0" && ( if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs" ) && fsutil dirty query %systemdrive% 1>nul 2>nul || (  echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c cd ""%~sdp0"" && %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs" && "%temp%\getadmin.vbs" && exit /B )
 exit /B
 
