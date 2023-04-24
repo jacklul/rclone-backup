@@ -360,6 +360,7 @@ if %USE_VSS% equ true (
 set RESULT=%ERRORLEVEL%
 
 if not "%RESULT%"=="0" (
+	rundll32 user32.dll,MessageBeep
 	choice /C YN /M "Backup operation failed, restart synchronization "
 	
 	if errorlevel 2 goto after
