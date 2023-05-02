@@ -54,46 +54,34 @@ and this `/etc/rclone-backup/script.sh`:
 ```bash
 #!/bin/bash
 
-PIHOLE_CONFIG_DIR=/etc/pihole
-GRAVITYDB_FILE=${PIHOLE_CONFIG_DIR}/gravity.db
-GRAVITYDB_TMP_FILE=/tmp/rclone-backup-gravity.db
-GRAVITYDB_MIN_FILE=${PIHOLE_CONFIG_DIR}/gravity.min.db
+PIHOLE_CONFIG_DIR="/etc/pihole"
+PIHOLE_GIT_DIR="/etc/.pihole"
+GRAVITYDB_FILE="$PIHOLE_CONFIG_DIR/gravity.db"
+GRAVITYDB_MIN_FILE="$PIHOLE_CONFIG_DIR/gravity.min.db"
+GRAVITYDB_COPYSQL="$PIHOLE_GIT_DIR/advanced/Templates/gravity_copy.sql"
 
-if [ -d "/etc/pihole" ] && [ -d "/opt/pihole" ] && [ -f "${GRAVITYDB_FILE}" ]; then
-        command -v sqlite3 >/dev/null 2>&1 || { echo "Please install 'sqlite3' package!"; exit 1; }
-        command -v md5sum >/dev/null 2>&1 || { echo "Please install 'md5sum' package!"; exit 1; }
+if [ -f "$GRAVITYDB_FILE" ]; then
+    command -v sqlite3 >/dev/null 2>&1 || { echo "Please install 'sqlite3' package!"; exit 1; }
+    command -v md5sum >/dev/null 2>&1 || { echo "Please install 'md5sum' package!"; exit 1; }
+    
+    PREVIOUS_CHECKSUM=
+    if [ -f "$GRAVITYDB_FILE.md5" ]; then
+        PREVIOUS_CHECKSUM="$(cat "$GRAVITYDB_FILE.md5")"
+    fi
 
-        PREVIOUS_CHECKSUM=
-        if [ -f "${GRAVITYDB_FILE}.md5" ]; then
-                PREVIOUS_CHECKSUM=`cat "${GRAVITYDB_FILE}.md5"`
+    CURRENT_CHECKSUM="$(md5sum "$GRAVITYDB_FILE" | awk '{ print $1 }')"
+
+    if [ "$CURRENT_CHECKSUM" != "$PREVIOUS_CHECKSUM" ] || [ ! -f "$GRAVITYDB_MIN_FILE" ]; then
+        echo "Creating minimal gravity database..."
+
+        sqlite3 "$GRAVITYDB_MIN_FILE" <<< "$(cat "$GRAVITYDB_COPYSQL")"
+
+        if [ ! $? -eq 0 ]; then
+            echo "Failed to copy gravity database!"
+            exit 1
         fi
 
-        CURRENT_CHECKSUM=`md5sum ${GRAVITYDB_FILE} | awk '{ print $1 }'`
-
-        if [ "${CURRENT_CHECKSUM}" != "${PREVIOUS_CHECKSUM}" ] || [ ! -f "${GRAVITYDB_MIN_FILE}" ]; then
-                echo "Compressing gravity database..."
-
-                # Copy current database to /tmp
-                cp -v $GRAVITYDB_FILE $GRAVITYDB_TMP_FILE
-
-                if [ $? -eq 0 ]; then
-                        # Remove data from gravity table
-                        sqlite3 $GRAVITYDB_TMP_FILE "DELETE FROM gravity; VACUUM;"
-
-                        if [ ! $? -eq 0 ]; then
-                                echo "Failed to remove data from gravity table!"
-                                exit 1
-                        fi
-
-                        mv -v $GRAVITYDB_TMP_FILE $GRAVITYDB_MIN_FILE
-                else
-                        echo "Failed to copy database!"
-                        exit 1
-                fi
-
-                echo ${CURRENT_CHECKSUM} > "${GRAVITYDB_FILE}.md5"
-        else
-                echo "No need to compress gravity database!"
-        fi
+        echo "$CURRENT_CHECKSUM" > "$GRAVITYDB_FILE.md5"
+    fi
 fi
 ```
