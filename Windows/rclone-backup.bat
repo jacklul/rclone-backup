@@ -65,7 +65,7 @@ set USE_VSS=false
 set VSS_DRIVE=T
 set ARGUMENTS=--skip-links --ignore-case --fast-list
 set ARGUMENTS_FTP=--vfs-cache-mode off --no-modtime --crypt-show-mapping
-set ARGUMENTS_WEBDAV=--vfs-cache-mode off --no-modtime --crypt-show-mapping --read-only
+set ARGUMENTS_WEBDAV=--vfs-cache-mode off --no-modtime --crypt-show-mapping
 set PORT_FTP=2150
 set PORT_WEBDAV=8050
 set TEST_LOG=%TEMP%\rclone.log
@@ -185,30 +185,35 @@ cls
 set M=
 call :show_config
 
-echo  MENU:
-echo   1 - Run synchronization
-echo   2 - Serve through FTP (read-write)
-echo   3 - Serve through WebDAV (read-only)
-echo   4 - Open Web GUI
-echo   5 - Open configuration editor
-echo   6 - Remote quota information
-
 if %TEST_MODE% equ true (
-	echo   M - Switch to normal mode
+	set CURMODE=TEST
+	set NEWMODE=NORMAL
 ) else (
-	echo   M - Switch to test mode
+	set CURMODE=NORMAL
+	set NEWMODE=TEST
 )
 
-echo   Q - Exit
+echo  MENU:
+echo   1 - Run synchronization
+echo   2 - Serve through FTP          4 - Serve through FTP (read-only)
+echo   3 - Serve through WebDAV       5 - Serve through WebDAV (read-only)
+echo   C - Open configuration editor  W - Open Web GUI
+echo   Q - Remote quota information   M - Switch to %NEWMODE% mode
+echo   E - Exit
 echo.
 
-set /P M=Type a number or Q then press ENTER: 
+set /P M=Type an option then press ENTER: 
 if %M%==1 goto sync
 if %M%==2 goto serve_ftp
 if %M%==3 goto serve_webdav
-if %M%==4 goto gui
-if %M%==5 goto edit
-if %M%==6 goto about
+if %M%==4 goto serve_ftp_ro
+if %M%==5 goto serve_webdav_ro
+if "%M%"=="w" goto gui
+if "%M%"=="W" goto gui
+if "%M%"=="c" goto edit
+if "%M%"=="C" goto edit
+if "%M%"=="q" goto about
+if "%M%"=="Q" goto about
 
 :: Switch test/normal mode
 if %TEST_MODE% equ true (
@@ -219,8 +224,8 @@ if %TEST_MODE% equ true (
 	if "%M%"=="M" set TEST_MODE=true && goto start
 )
 
-if "%M%"=="q" goto eof
-if "%M%"=="Q" goto eof
+if "%M%"=="e" goto eof
+if "%M%"=="E" goto eof
 goto menu
 
 :: Run Web GUI
@@ -262,6 +267,17 @@ if "%ARG%"=="ftp" goto eof
 @pause
 goto menu
 
+:: Serve remote through FTP (read-only)
+:serve_ftp_ro
+cls
+::start "" ftp://localhost:%PORT_FTP%/
+echo ftp://localhost:%PORT_FTP%/
+rclone --config="%RCLONE_CONFIG%" serve ftp %REMOTE_PATH% --addr localhost:%PORT_FTP% --read-only %ARGUMENTS_FTP%
+
+if "%ARG%"=="ftp_ro" goto eof
+@pause
+goto menu
+
 :: Serve remote through WebDAV
 :serve_webdav
 cls
@@ -270,6 +286,17 @@ echo http://localhost:%PORT_WEBDAV%/
 rclone --config="%RCLONE_CONFIG%" serve webdav %REMOTE_PATH% --addr localhost:%PORT_WEBDAV% %ARGUMENTS_WEBDAV%
 
 if "%ARG%"=="webdav" goto eof
+@pause
+goto menu
+
+:: Serve remote through WebDAV (read-only)
+:serve_webdav_ro
+cls
+::start "" http://localhost:%PORT_WEBDAV%/
+echo http://localhost:%PORT_WEBDAV%/
+rclone --config="%RCLONE_CONFIG%" serve webdav %REMOTE_PATH% --addr localhost:%PORT_WEBDAV% --read-only %ARGUMENTS_WEBDAV%
+
+if "%ARG%"=="webdav_ro" goto eof
 @pause
 goto menu
 
@@ -304,6 +331,8 @@ exit /B
 
 :: Run the sync
 :sync
+if "%ARG%"=="sync-after-getadmin" set ARG=
+
 cls
 
 if %USE_VSS% equ true (
@@ -324,7 +353,7 @@ if %DRY_RUN% equ true (
 )
 
 echo.
-echo ARGUMENTS: --config="%RCLONE_CONFIG%" --filter-from="%FILTER_RULES%" sync %LOCAL_DRIVE%%LOCAL_PATH% %REMOTE_PATH% %ARGUMENTS_ACTUAL%
+echo ARGUMENTS: --config="%RCLONE_CONFIG%" --filter-from="%FILTER_RULES%" sync %LOCAL_DRIVE%:%LOCAL_PATH% %REMOTE_PATH% %ARGUMENTS_ACTUAL%
 echo.
 
 :: Remove old log file
