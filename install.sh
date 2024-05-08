@@ -7,7 +7,7 @@ command -v rclone >/dev/null 2>&1 || { echo "This script requires Rclone to run,
 
 SPATH=$(dirname "$0")
 REQUIRED_FILES=( rclone-backup.sh rclone-backup.service rclone-backup.timer rclone-backup.conf backup.list )
-DOWNLOAD_PATH=rclone-backup
+DOWNLOAD_PATH=/tmp/rclone-backup
 DOWNLOAD_URL=https://raw.githubusercontent.com/jacklul/rclone-backup/master
 
 set -e
@@ -20,10 +20,10 @@ for FILE in "${REQUIRED_FILES[@]}"; do
 done
 
 if [ "$MISSING_FILES" -gt 0 ]; then
-	if [ "$MISSING_FILES" != "${#MISSING_FILES[@]}" ]; then
-		mkdir -v "$SPATH/$DOWNLOAD_PATH"
-		SPATH="$SPATH/$DOWNLOAD_PATH"
-	fi
+    if [ "$MISSING_FILES" = "${#REQUIRED_FILES[@]}" ]; then
+        mkdir -pv "$DOWNLOAD_PATH"
+        SPATH="$DOWNLOAD_PATH"
+    fi
 
 	for FILE in "${REQUIRED_FILES[@]}"; do
 		if [ ! -f "$SPATH/$FILE" ]; then
