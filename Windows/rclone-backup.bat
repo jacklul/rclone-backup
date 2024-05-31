@@ -156,7 +156,7 @@ if %TEST_MODE% equ true (
 	set DRY_RUN=true
 	set USE_VSS=false
 	set SHOW_PROGRESS=true
-	set ARGUMENTS=--skip-links --ignore-case --log-level INFO --log-file="%TEST_LOG%"
+	set ARGUMENTS=--skip-links --ignore-case --log-level INFO --log-file="%TEST_LOG%" --retries 1
 )
 
 :: Quick argument shortcuts to script functions
