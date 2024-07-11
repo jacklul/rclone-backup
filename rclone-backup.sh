@@ -11,15 +11,15 @@ FILTER_LIST_FILE=${CONFIG_DIR}/backup.list
 EXECUTE_SCRIPT=${CONFIG_DIR}/script.sh
 REMOTE=remote:
 PARAMETERS=
-LOCKFILE=/var/lock/$(basename $0)
+LOCKFILE=/var/lock/$(basename "$0")
 
 if [ -f "${CONFIG_FILE}" ]; then
 	#shellcheck disable=SC1090
 	. "${CONFIG_FILE}"
 fi
 
-LOCKPID=$(cat "$LOCKFILE"} 2> /dev/null || echo '')
-if [ -e "$LOCKFILE" ] && [ ! -z "$LOCKPID" ] && kill -0 "$LOCKPID" > /dev/null 2>&1; then
+LOCKPID=$(cat "$LOCKFILE" 2> /dev/null || echo '')
+if [ -e "$LOCKFILE" ] && [ -n "$LOCKPID" ] && kill -0 "$LOCKPID" > /dev/null 2>&1; then
     echo "Script is already running!"
     exit 6
 fi
@@ -34,12 +34,12 @@ trap onInterruptOrExit EXIT
 [ -f "$RCLONE_CONFIG_FILE" ] || { echo "Missing Rclone configuration: $RCLONE_CONFIG_FILE"; exit 1; }
 [ -f "$FILTER_LIST_FILE" ] || { echo "Missing filter file: $FILTER_LIST_FILE"; exit 1; }
 
-if [ "$EXECUTE_SCRIPT" != "" ] && [ -f "$EXECUTE_SCRIPT" ]; then
+if [ -n "$EXECUTE_SCRIPT" ] && [ -x "$EXECUTE_SCRIPT" ]; then
 	echo "Executing script '$EXECUTE_SCRIPT'..."
 	bash "$EXECUTE_SCRIPT"
 fi
 
-if [ ! -z "$LAUNCHED_BY_SYSTEMD" ]; then
+if [ -n "$LAUNCHED_BY_SYSTEMD" ]; then
 	PARAMETERS=$(echo "$PARAMETERS " | sed 's/--progress //g' | sed -r 's/--stats [a-zA-Z0-9]+ //g')
 fi
 

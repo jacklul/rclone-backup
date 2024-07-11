@@ -18,6 +18,6 @@ If there is something you need to do before every backup you can create `/etc/rc
 
 Any arguments passed to `rclone-backup` are passed to `rclone` command line or you can use `PARAMETERS` variable in `/etc/rclone-backup/rclone-backup.conf`!
 
-### [Setup for Pi-hole](/Pi-hole.md)
+### [Setup for Pi-hole](/extras/Pi-hole.md)
 
-### [Backup list of saved packages](/dpkg-installed.md)
+### [Backup list of saved packages](/extras/dpkg-installed.md)
