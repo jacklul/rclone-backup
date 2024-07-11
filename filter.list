@@ -4,8 +4,8 @@
 
 # This script
 + /etc/rclone-backup/filter.list
-+ /etc/rclone-backup/rclone-backup.conf
-+ /etc/rclone-backup/script.sh
++ /etc/rclone-backup/config.conf
++ /etc/rclone-backup/*.sh
 
 # Add your entries here
 
