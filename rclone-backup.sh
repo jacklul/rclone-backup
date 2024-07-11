@@ -96,7 +96,7 @@ fi
 
 if [ -n "$SCRIPT_PRE" ] && [ -x "$SCRIPT_PRE" ]; then
     echo "Executing script '$SCRIPT_PRE'..."
-    bash "$SCRIPT_PRE"
+    . "$SCRIPT_PRE"
 fi
 
 echo "Backing up now..."
@@ -107,7 +107,7 @@ EXITCODE=$?
 
 if [ -n "$SCRIPT_POST" ] && [ -x "$SCRIPT_POST" ]; then
     echo "Executing script '$SCRIPT_POST'..."
-    bash "$SCRIPT_POST" "$EXITCODE"
+    . "$SCRIPT_POST" "$EXITCODE"
 fi
 
 if [ "$EXITCODE" -eq 0 ]; then
