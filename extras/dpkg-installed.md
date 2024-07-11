@@ -1,11 +1,11 @@
 Add this to the filter list:
 
-```
+```text
 # dpkg installed packages list
 + /var/lib/dpkg/installed.txt
 ```
 
-and this `/etc/rclone-backup/script.sh`:
+and this `/etc/rclone-backup/script_pre.sh`:
 
 ```bash
 #!/bin/bash

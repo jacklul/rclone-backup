@@ -1,9 +1,9 @@
-﻿# Exclude hidden files and directories
+# Exclude hidden files and directories
 - .*
 - .*/**
 
 # This script
-+ /etc/rclone-backup/backup.list
++ /etc/rclone-backup/filter.list
 + /etc/rclone-backup/rclone-backup.conf
 + /etc/rclone-backup/script.sh
 

@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily backup using rclone-backup (%i)
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target

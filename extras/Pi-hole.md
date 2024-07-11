@@ -2,7 +2,7 @@ _Up to date as of Pi-hole v5.2.4._
 
 Use this filter list:
 
-```
+```text
 # Exclude hidden files and directories
 - .*
 - .*/**
@@ -49,7 +49,7 @@ Use this filter list:
 - **
 ```
 
-and this `/etc/rclone-backup/script.sh`:
+and this `/etc/rclone-backup/script_pre.sh`:
 
 ```bash
 #!/bin/bash
@@ -63,7 +63,7 @@ GRAVITYDB_COPYSQL="$PIHOLE_GIT_DIR/advanced/Templates/gravity_copy.sql"
 if [ -f "$GRAVITYDB_FILE" ]; then
     command -v sqlite3 >/dev/null 2>&1 || { echo "Please install 'sqlite3' package!"; exit 1; }
     command -v md5sum >/dev/null 2>&1 || { echo "Please install 'md5sum' package!"; exit 1; }
-    
+
     PREVIOUS_CHECKSUM=
     if [ -f "$GRAVITYDB_FILE.md5" ]; then
         PREVIOUS_CHECKSUM="$(cat "$GRAVITYDB_FILE.md5")"

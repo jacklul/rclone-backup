@@ -1,0 +1,8 @@
+[Unit]
+Description=Create backup using rclone-backup (%i)
+After=network-online.target multi-user.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/rclone-backup --config-dir="%i"
