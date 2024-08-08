@@ -6,3 +6,12 @@ Wants=network-online.target
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/rclone-backup
+Restart=no
+Nice=19
+CPUSchedulingPolicy=batch
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+CPUWeight=60
+CPUQuota=90%
+IOWeight=60
+MemorySwapMax=0
