@@ -1,0 +1,157 @@
+##################################################
+# Global exclusions
+##################################################
+- **/*.log
+- **/*log*.txt
+- **/*.log.*
+- **/*.{tmp,temp}
+- **/*.cache
+- **/*.part
+- **/*.{dmp,dump}
+- **/*.crash
+- **/*.sock
+- /dev/
+- /proc/
+- /run/
+- /sys/
+
+##################################################
+# Custom TOP filter
+##################################################
+#include "custom-top.list"
+
+##################################################
+# Important system files
+##################################################
++ /etc/rclone-backup/**
+#+ /etc/something/important.conf
+
+##################################################
+# Important user files
+##################################################
++ /home/*/.ssh/**
++ /home/*/.gnupg/**
+
+##################################################
+# Global exclusions for home directories
+##################################################
+- /home/*/.{tmp,temp}/
+- /home/*/.local/{tmp,temp}/
+- /home/*/.cache/
+- /home/*/.thumbnails/
+- /home/*/.Trash/
+- /home/*/.local/share/Trash/
+- /home/*/.local/mnt/
+- /home/*/.build/
+- /home/*/.{venvs,virtualenvs}/
+- /home/*/.{cargo,rustup}/
+- /home/*/.{dotnet,nuget}/
+- /home/*/.node-gyp/
+- /home/*/.go/
+- /home/*/.platformio/
++ /home/*/.vscode/extensions/*/.vsixmanifest
+- /home/*/.vscode/extensions/
+- /home/*/{tmp,temp}/
+- /home/*/node_modules/
+- /home/*/go/
+
+##################################################
+# XDG user directories
+##################################################
+#include "xdg.list"
+
+##################################################
+# Configuration directory
+##################################################
+- /home/*/.config/**/{Cache,GPUCache,ShaderCache}/
+- /home/*/.config/**/Media Cache/
+- /home/*/.config/**/Application Cache/
++ /home/*/.config/**
+
+##################################################
+# Application data
+##################################################
++ /home/*/.local/share/plasma/**
+
+##################################################
+# Wine (default prefix)
+##################################################
++ /home/*/.wine/drive_c/Users/*/Documents/**
++ /home/*/.wine/drive_c/Users/*/Saved Games/**
++ /home/*/.wine/*.reg
+- /home/*/.wine/**
+
+##################################################
+# Bottles
+##################################################
++ /home/*/.var/app/com.usebottles.bottles/data/bottles/bottles/*/drive_c/Users/*/Documents/**
++ /home/*/.var/app/com.usebottles.bottles/data/bottles/bottles/*/drive_c/Users/*/Saved Games/**
+- /home/*/.var/app/com.usebottles.bottles/data/bottles/bottles/**
+
+##################################################
+# Steam
+##################################################
++ /home/*/.local/share/Steam/compatdata/*/pfx/drive_c/Users/*/Documents/**
++ /home/*/.local/share/Steam/compatdata/*/pfx/drive_c/Users/*/Saved Games/**
+#+ /home/*/.local/share/Steam/compatdata/*/pfx/drive_c/Users/*/**
++ /home/*/.local/share/Steam/config/**
+- /home/*/.local/share/Steam/userdata/**/*cache/
+- /home/*/.local/share/Steam/userdata/*/ugc/*/
+- /home/*/.local/share/Steam/userdata/*/config/grid/
++ /home/*/.local/share/Steam/userdata/**
+- /home/*/.local/share/Steam/steamapps/**
+
+##################################################
+# Flatpak
+##################################################
++ /home/*/.var/app/*/config/**
+#+ /home/*/.var/app/*/data/**
++ /home/*/.local/share/flatpak/overrides/**
+- /home/*/.local/share/flatpak/**
++ /var/lib/flatpak/app/*/config/**
++ /var/lib/flatpak/overrides/**
+- /var/lib/flatpak/**
+
+##################################################
+# Projects/Work directory
+##################################################
+# Dependencies storage
+- /home/*/{Projects,Work}/**/vendor/**
+- /home/*/{Projects,Work}/**/node_modules/**
+
+# Temporary files/caches/builds
+- /home/*/{Projects,Work}/**/.{npm,yarn}/**
+- /home/*/{Projects,Work}/**/__pycache__/**
+- /home/*/{Projects,Work}/*/{obj,out}/**
+- /home/*/{Projects,Work}/*/{var,data}/{cache,log,logs,tmp,temp}/**
+
+# Git submodules (these can be redownloaded)
+- /home/*/{Projects,Work}/**/.git/modules/**
+
+# Visual Studio
+- /home/*/{Projects,Work}/*/.vs/**
+
+# Unity
+- /home/*/{Projects,Work}/*/{Library,Logs,Tmp,Temp}/**
+
+# Temporary archives on projects etc.
+- /home/*/{Projects,Work}/*.{7z,zip,bz2,tar,gz,xz,zst}
+
+# Include everything else
++ /home/*/{Projects,Work}/**
+
+##################################################
+# Files and hidden directories in home's root
+##################################################
++ /home/*/.*/**
++ /home/*/*.*
+
+##################################################
+# Custom BOTTOM filter
+##################################################
+#include "custom-bottom.list"
+
+##################################################
+# Exclude everything else - DO NOT REMOVE!
+##################################################
+- **
