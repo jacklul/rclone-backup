@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily backup using rclone-backup
+Description=Scheduled backup using rclone-backup
 
 [Timer]
 OnCalendar=daily

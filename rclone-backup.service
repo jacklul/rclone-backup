@@ -7,11 +7,25 @@ Wants=network-online.target
 Type=simple
 ExecStart=/usr/local/bin/rclone-backup
 Restart=no
+
+# Lower priority
 Nice=19
+CPUQuota=90%
+CPUWeight=50
+IOWeight=50
+MemorySwapMax=0
 CPUSchedulingPolicy=batch
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7
-CPUWeight=60
-CPUQuota=90%
-IOWeight=60
-MemorySwapMax=0
+
+# Security hardening
+#ReadWritePaths=/etc/rclone-backup/rclone.conf
+#PrivateTmp=true
+#ProtectSystem=strict
+#ProtectKernelModules=yes
+#ProtectKernelTunables=yes
+#ProtectControlGroups=yes
+#RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+#NoNewPrivileges=true
+#LimitNOFILE=1024
+#LimitNPROC=128
