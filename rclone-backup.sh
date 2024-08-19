@@ -3,7 +3,7 @@
 
 command -v rclone >/dev/null 2>&1 || { echo "Please install Rclone first!" >&2; exit 1; }
 
-POSITIONAL_ARGS=()
+positional_args=()
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -14,19 +14,19 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -c|--config)
-            NEW_CONFIG_FILE="$2"
-            echo "Using configuration file: $NEW_CONFIG_FILE"
+            new_config_file="$2"
+            echo "Using configuration file: $new_config_file"
             shift
             shift
             ;;
         *)
-            POSITIONAL_ARGS+=("$1")
+            positional_args+=("$1")
             shift
             ;;
     esac
 done
 
-set -- "${POSITIONAL_ARGS[@]}"
+set -- "${positional_args[@]}"
 
 CONFIG_DIR="${CONFIG_DIR:-/etc/rclone-backup}"
 CONFIG_FILE="${CONFIG_FILE:-$CONFIG_DIR/config.conf}"
@@ -37,10 +37,11 @@ REMOTE="remote:"
 PARAMETERS=""
 SCRIPT_PRE="$CONFIG_DIR/pre.sh"
 SCRIPT_POST="$CONFIG_DIR/post.sh"
+LOCKFILE="/var/lock/$(basename "$0")"
 
-if [ -n "$NEW_CONFIG_FILE" ] && [ -f "$NEW_CONFIG_FILE" ]; then
+if [ -n "$new_config_file" ] && [ -f "$new_config_file" ]; then
     #shellcheck disable=SC1090
-    . "$NEW_CONFIG_FILE"
+    . "$new_config_file"
 elif [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     #shellcheck disable=SC1090
     . "$CONFIG_FILE"
@@ -48,10 +49,10 @@ fi
 
 [ -f "$RCLONE_CONFIG" ] || { echo "Missing Rclone configuration: ${RCLONE_CONFIG:-(not set?)}" >&2; exit 1; }
 
-OPTS=("--config=$RCLONE_CONFIG")
+opts=("--config=$RCLONE_CONFIG")
 
 if [ -n "$FILTER_LIST" ] && [ -f "$FILTER_LIST" ]; then
-    OPTS+=("--filter-from=$FILTER_LIST")
+    opts+=("--filter-from=$FILTER_LIST")
 fi
 
 # Running via systemd, disable progress and stats if present in the parameters
@@ -60,7 +61,7 @@ if [ -n "$INVOCATION_ID" ] || [ -n "$JOURNAL_STREAM" ]; then
 fi
 
 #shellcheck disable=SC2206
-OPTS+=($PARAMETERS)
+opts+=($PARAMETERS)
 
 if [ -n "$RCLONE_CONFIG_FILE" ]; then
     echo "RCLONE_CONFIG_FILE is deprecated, use RCLONE_CONFIG instead" >&2
@@ -78,10 +79,9 @@ if [ -n "$EXECUTE_SCRIPT" ]; then
 fi
 
 if [ "$UID" -eq 0 ]; then
-    LOCKFILE=/var/lock/$(basename "$0")
-    LOCKPID=$(cat "$LOCKFILE" 2> /dev/null || echo '')
+    lockpid=$(cat "$LOCKFILE" 2> /dev/null || echo '')
 
-    if [ -e "$LOCKFILE" ] && [ -n "$LOCKPID" ] && kill -0 "$LOCKPID" > /dev/null 2>&1; then
+    if [ -e "$LOCKFILE" ] && [ -n "$lockpid" ] && kill -0 "$lockpid" > /dev/null 2>&1; then
         echo "Script is already running!" >&2
         exit 6
     fi
@@ -96,22 +96,26 @@ fi
 
 if [ -n "$SCRIPT_PRE" ] && [ -x "$SCRIPT_PRE" ]; then
     echo "Executing script '$SCRIPT_PRE'..."
+
+    #shellcheck disable=SC1090
     . "$SCRIPT_PRE"
 fi
 
 echo "Backing up now..."
 
 #shellcheck disable=SC2068
-rclone sync "$BASE_PATH" "$REMOTE" "${OPTS[@]}" $@
-EXITCODE=$?
+rclone sync "$BASE_PATH" "$REMOTE" "${opts[@]}" $@
+exitcode=$?
 
 if [ -n "$SCRIPT_POST" ] && [ -x "$SCRIPT_POST" ]; then
     echo "Executing script '$SCRIPT_POST'..."
-    . "$SCRIPT_POST" "$EXITCODE"
+
+    #shellcheck disable=SC1090
+    . "$SCRIPT_POST" "$exitcode"
 fi
 
-if [ "$EXITCODE" -eq 0 ]; then
+if [ "$exitcode" -eq 0 ]; then
     echo "Finished successfully"
 else
-    echo "Finished with error code $EXITCODE"
+    echo "Finished with error code $exitcode"
 fi
