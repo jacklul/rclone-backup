@@ -19,13 +19,13 @@ IOSchedulingClass=best-effort
 IOSchedulingPriority=7
 
 # Security hardening
-#ReadWritePaths=/etc/rclone-backup/rclone.conf
-#PrivateTmp=true
-#ProtectSystem=strict
-#ProtectKernelModules=yes
-#ProtectKernelTunables=yes
-#ProtectControlGroups=yes
-#RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
-#NoNewPrivileges=true
-#LimitNOFILE=1024
-#LimitNPROC=128
+ReadWritePaths=/etc/rclone-backup /var/lock
+PrivateTmp=true
+ProtectSystem=strict
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+NoNewPrivileges=true
+LimitNOFILE=1024
+LimitNPROC=64
