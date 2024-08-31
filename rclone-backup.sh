@@ -104,7 +104,7 @@ fi
 echo "Backing up now..."
 
 #shellcheck disable=SC2068
-rclone sync "$BASE_PATH" "$REMOTE" "${opts[@]}" $@
+rclone sync "$BASE_PATH" "$REMOTE" "${opts[@]}" "$@"
 exitcode=$?
 
 if [ -n "$SCRIPT_POST" ] && [ -x "$SCRIPT_POST" ]; then
