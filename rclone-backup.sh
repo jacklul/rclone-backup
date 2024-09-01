@@ -48,35 +48,7 @@ elif [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
 fi
 
 [ -f "$RCLONE_CONFIG" ] || { echo "Missing Rclone configuration: ${RCLONE_CONFIG:-(not set?)}" >&2; exit 1; }
-
-opts=("--config=$RCLONE_CONFIG")
-
-if [ -n "$FILTER_LIST" ] && [ -f "$FILTER_LIST" ]; then
-    opts+=("--filter-from=$FILTER_LIST")
-fi
-
-# Running via systemd, disable progress and stats if present in the parameters
-if [ -n "$INVOCATION_ID" ] || [ -n "$JOURNAL_STREAM" ]; then
-    PARAMETERS=$(echo "$PARAMETERS " | sed 's/--progress //g' | sed -r 's/--stats [a-zA-Z0-9]+ //g')
-fi
-
-#shellcheck disable=SC2206
-opts+=($PARAMETERS)
-
-if [ -n "$RCLONE_CONFIG_FILE" ]; then
-    echo "RCLONE_CONFIG_FILE is deprecated, use RCLONE_CONFIG instead" >&2
-    RCLONE_CONFIG="$RCLONE_CONFIG_FILE"
-fi
-
-if [ -n "$FILTER_LIST_FILE" ]; then
-    echo "FILTER_LIST_FILE is deprecated, use FILTER_LIST instead" >&2
-    FILTER_LIST="$FILTER_LIST_FILE"
-fi
-
-if [ -n "$EXECUTE_SCRIPT" ]; then
-    echo "EXECUTE_SCRIPT is deprecated, use SCRIPT_PRE instead" >&2
-    SCRIPT_PRE="$EXECUTE_SCRIPT"
-fi
+[ -f "$FILTER_LIST" ] || { echo "Missing filter list: ${FILTER_LIST:-(not set?)}" >&2; exit 1; }
 
 if [ "$UID" -eq 0 ]; then
     lockpid=$(cat "$LOCKFILE" 2> /dev/null || echo '')
@@ -101,10 +73,15 @@ if [ -n "$SCRIPT_PRE" ] && [ -x "$SCRIPT_PRE" ]; then
     . "$SCRIPT_PRE"
 fi
 
+# Running via systemd, disable progress and stats if present in the parameters
+if [ -n "$INVOCATION_ID" ] || [ -n "$JOURNAL_STREAM" ]; then
+    PARAMETERS=$(echo "$PARAMETERS " | sed 's/--progress //g' | sed -r 's/--stats [a-zA-Z0-9]+ //g')
+fi
+
 echo "Backing up now..."
 
-#shellcheck disable=SC2068
-rclone sync "$BASE_PATH" "$REMOTE" "${opts[@]}" "$@"
+#shellcheck disable=SC2086
+rclone sync "$BASE_PATH" "$REMOTE" --config="$RCLONE_CONFIG" --filter-from="$FILTER_LIST" $PARAMETERS "$@"
 exitcode=$?
 
 if [ -n "$SCRIPT_POST" ] && [ -x "$SCRIPT_POST" ]; then
